@@ -1,0 +1,5 @@
+**/*_dev.py
+dev/
+.*/
+venv/
+**/__pycache__
