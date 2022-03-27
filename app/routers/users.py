@@ -7,7 +7,7 @@ from app.routers.user_model import UserSignUpReq
 from app.sql.crud import is_existed_phone, add_user, add_openid_session
 from app.sql.database import gen_session
 from app.sql.models import UserInDB, OpenidSessionkey
-from app.wx_api.user_api import code2session
+from app.wx_api.user_api import dev_code2session
 from app.dependencies import hash_password, create_access_token
 
 router = APIRouter(prefix='/user', tags=['user'])
@@ -18,7 +18,7 @@ async def create_user(info: UserSignUpReq, db: Session = Depends(gen_session)):
     if is_existed_phone(db, info.phone_number):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='用户已存在')
 
-    auth_response = await code2session(info.code)
+    auth_response = await dev_code2session(info.code)
     if not all([auth_response.openid, auth_response.session_key]):
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='code 错误')
 

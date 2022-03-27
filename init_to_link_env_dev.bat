@@ -1,0 +1,13 @@
+set DB_HOST=127.0.0.1
+set DB_PORT=3306
+set DB_NAME=to_link
+set DB_USER=root
+set DB_USER_PASSWORD=
+
+set MINIPROGRAM_APPID=wx9eebddbb54337837
+set MINIPROGRAM_SECRET=320137c726ee09f5a7b407bc53edf57b
+
+set JWT_SECRET_KEY=d052b07480dc51193879670dfb4cbcb49e653bcc463321efb124dd04531033cb
+
+call .\venv\Scripts\activate.bat
+cmd .
