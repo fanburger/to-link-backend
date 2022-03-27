@@ -18,5 +18,4 @@ async def code2session(code: str) -> Code2SessionRsp:
     async with AsyncClient() as client:
         rsp: Response = await client.get(url=CODE2SESSION_URL, params=c2sreq.dict())
         if rsp.status_code == status.HTTP_200_OK:
-            print(rsp.json())
             return Code2SessionRsp(**rsp.json())
