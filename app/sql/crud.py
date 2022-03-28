@@ -49,3 +49,29 @@ def get_user_by_phone_number(db: Session, phone: str) -> UserInDB:
     statement = select(UserInDB).where(UserInDB.phone_number == phone)
     user = db.exec(statement).first()
     return user
+
+
+def get_user_by_openid(db: Session, openid: str) -> UserInDB:
+    """通过 openid 查询用户
+
+    :param db: sqlmodel.Session
+    :param openid: 用户 openid
+    :return: app.sql.models.UserInDB()
+    """
+    statement = select(UserInDB).where(UserInDB.openid == openid)
+    user = db.exec(statement).first()
+    return user
+
+
+def update_session_key(db: Session, info: OpenidSessionkey) -> None:
+    """更新 session_key
+
+    :param db: sqlmodel.Session
+    :param info: app.sql.models.OpenidSessionkey()
+    :return: None
+    """
+    statement = select(OpenidSessionkey).where(OpenidSessionkey.openid == info.openid)
+    openid_sessionkey = db.exec(statement).first()
+
+    openid_sessionkey.session_key = info.session_key
+    db.add(openid_sessionkey)

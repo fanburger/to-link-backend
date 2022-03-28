@@ -4,8 +4,9 @@ from sqlmodel import Session
 
 from app.enum_base.enums import UserPurview
 from app.public_models import Token
-from app.routers.user_model import UserSignUpReq
-from app.sql.crud import is_existed_phone, add_user, add_openid_session, get_user_by_phone_number
+from app.routers.user_model import UserSignUpReq, LoginByOpenidReq
+from app.sql.crud import (is_existed_phone, add_user, add_openid_session, get_user_by_phone_number,
+                          get_user_by_openid, update_session_key)
 from app.sql.database import gen_session
 from app.sql.models import UserInDB, OpenidSessionkey
 from app.wx_api.user_api import code2session
@@ -57,5 +58,32 @@ async def login_by_phone(db: Session = Depends(gen_session), form_data: OAuth2Pa
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='密码错误')
 
     token = create_access_token(user.dict())
+
+    return token
+
+
+@router.post('/wx_code_login', response_model=Token, summary='openid 登录')
+async def login_by_openid(code: LoginByOpenidReq, db: Session = Depends(gen_session)):
+    """`wx.login`接口一键登录
+
+    小程序端调用 `wx.login` 获取 `code` 传到后端校验后可用于一键登录
+    调用该接口成功后会自动刷新数据库(openidsessionkey)中 `session_key` 的值.
+    """
+    auth_response = await code2session(code.code)
+    if not all([auth_response.openid, auth_response.session_key]):
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='code有误')
+
+    if not (user := get_user_by_openid(db, auth_response.openid)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户未注册')
+
+    token = create_access_token(user.dict())
+
+    try:
+        update_session_key(db, OpenidSessionkey(**auth_response.dict()))
+    except Exception as e:
+        db.rollback()
+        raise e
+    else:
+        db.commit()
 
     return token
