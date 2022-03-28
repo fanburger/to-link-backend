@@ -4,8 +4,8 @@ from app.sql.models import UserInDB, OpenidSessionkey
 
 
 def is_existed_phone(db: Session, phone_number: str) -> bool:
-    """
-    检查数据库中是否存在指定的手机号
+    """检查数据库中是否存在指定的手机号
+
     :param db: sqlmodel.Session
     :param phone_number: eg:18888888888
     :return: True or False
@@ -16,10 +16,10 @@ def is_existed_phone(db: Session, phone_number: str) -> bool:
 
 
 def add_user(db: Session, new_user: UserInDB) -> None:
-    """
-    添加一个新用户
+    """添加一个新用户
 
     注: 出于注册流程原子化问题 , 此处不能 commit
+
     :param db: sqlmodel.Session
     :param new_user: app.sql.models.UserInDB()
     :return: None
@@ -28,10 +28,10 @@ def add_user(db: Session, new_user: UserInDB) -> None:
 
 
 def add_openid_session(db: Session, info: OpenidSessionkey) -> None:
-    """
-    写入 openid 对应的 session_key
+    """写入 openid 对应的 session_key
 
     注: 出于注册流程原子化问题 , 此处不能 commit
+
     :param db: sqlmodel.Session
     :param info: app.sql.models.OpenidSessionkey()
     :return: None
@@ -40,8 +40,7 @@ def add_openid_session(db: Session, info: OpenidSessionkey) -> None:
 
 
 def get_user_by_phone_number(db: Session, phone: str) -> UserInDB:
-    """
-    通过手机号查询用户信息
+    """通过手机号查询用户信息
 
     :param db: sqlmodel.Session
     :param phone: 用户手机号

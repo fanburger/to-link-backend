@@ -6,8 +6,7 @@ from app.config import MINIPROGRAM_APPID, MINIPROGRAM_SECRET, CODE2SESSION_URL
 
 
 async def code2session(code: str) -> Code2SessionRsp:
-    """
-    用小程序生成的 code 换取 openid 和 session_key
+    """用小程序生成的 code 换取 openid 和 session_key
 
     详见: https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html
 

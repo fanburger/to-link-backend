@@ -10,8 +10,8 @@ pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
-    """
-    返回字符串 hash 值
+    """返回字符串 hash 值
+
     :param password: 明文密码
     :return: hashed_str
     """
@@ -19,8 +19,8 @@ def hash_password(password: str) -> str:
 
 
 def create_access_token(payload: dict, expire_delta: timedelta | None = None) -> Token:
-    """
-    创建 token
+    """创建 token
+
     :param payload: token 承载的内容 (必须包含:app.public_models.TokenPayload 所需的字段)
     :param expire_delta: token 有效期
     :return: app.public_models.Token()
@@ -37,8 +37,8 @@ def create_access_token(payload: dict, expire_delta: timedelta | None = None) ->
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    校验密码是否一致
+    """校验密码是否一致
+
     :param plain_password: 原始密码字符串
     :param hashed_password: 经过一次 hash 处理的密码
     :return: True or False
