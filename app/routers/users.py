@@ -14,8 +14,12 @@ from app.dependencies import hash_password, create_access_token, verify_password
 router = APIRouter(prefix='/user', tags=['user'])
 
 
-@router.post('/signup', response_model=Token, description='用户注册(账号,密码)')
+@router.post('/signup', response_model=Token, summary='注册')
 async def create_user(info: UserSignUpReq, db: Session = Depends(gen_session)):
+    """用户注册 , 新建用户
+
+    支持用户通过手机号和密码的方式注册
+    """
     if is_existed_phone(db, info.phone_number):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='用户已存在')
 
@@ -40,8 +44,12 @@ async def create_user(info: UserSignUpReq, db: Session = Depends(gen_session)):
     return token
 
 
-@router.post('/login_account')
-async def login_by_account(db: Session = Depends(gen_session), form_data: OAuth2PasswordRequestForm = Depends()):
+@router.post('/phone_login', response_model=Token, summary='手机号登录')
+async def login_by_phone(db: Session = Depends(gen_session), form_data: OAuth2PasswordRequestForm = Depends()):
+    """用户账号密码登录接口
+
+    该接口仅供账号密码登录调用 , 请求头中`Content-Type`请使用`application/x-www-form-urlencoded`
+    """
     if not (user := get_user_by_phone_number(db, form_data.username)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
 
