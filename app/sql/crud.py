@@ -37,3 +37,16 @@ def add_openid_session(db: Session, info: OpenidSessionkey) -> None:
     :return: None
     """
     db.add(info)
+
+
+def get_user_by_phone_number(db: Session, phone: str) -> UserInDB:
+    """
+    通过手机号查询用户信息
+
+    :param db: sqlmodel.Session
+    :param phone: 用户手机号
+    :return: app.sql.models.UserInDB()
+    """
+    statement = select(UserInDB).where(UserInDB.phone_number == phone)
+    user = db.exec(statement).first()
+    return user

@@ -34,3 +34,13 @@ def create_access_token(payload: dict, expire_delta: timedelta | None = None) ->
     to_encode = TokenPayload(**to_encode).dict()  # 校验和过滤相关值
     jwt_encode = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=ALGORITHM)
     return Token(access_token=jwt_encode)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    校验密码是否一致
+    :param plain_password: 原始密码字符串
+    :param hashed_password: 经过一次 hash 处理的密码
+    :return: True or False
+    """
+    return pwd_context.verify(plain_password, hashed_password)
