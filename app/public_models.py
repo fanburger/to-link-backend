@@ -4,7 +4,7 @@ from sqlmodel import SQLModel
 
 
 class Token(SQLModel):
-    token_type: str = 'bearer'
+    token_type: str = 'Bearer'
     access_token: str
 
 
