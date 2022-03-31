@@ -13,6 +13,10 @@ def create_db_and_tables() -> None:
     SQLModel.metadata.create_all(engine)
 
 
+def drop_all_tables():
+    SQLModel.metadata.drop_all(engine)
+
+
 def gen_session() -> Session:
     """生成一个会话实例
 

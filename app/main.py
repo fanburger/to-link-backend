@@ -2,13 +2,14 @@ from fastapi import FastAPI
 
 from app.internal import admin
 from app.routers import items, users
-from app.sql.database import create_db_and_tables
+from app.sql.database import create_db_and_tables, drop_all_tables
 
 app = FastAPI()
 
 
 @app.on_event('startup')
 def create_tables():
+    drop_all_tables()
     create_db_and_tables()
 
 
