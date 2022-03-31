@@ -6,6 +6,7 @@ class UserSignUpReq(SQLModel):
     password: str = Field(min_length=8, max_length=30)
     code: str = Field(description='wx.login 接口返回的code')
     nickname: str
+    avatar_url: str
 
 
 class LoginByOpenidReq(SQLModel):
