@@ -19,3 +19,7 @@ class LoginByOpenidReq(SQLModel):
 class PhoneNumberLogin(SQLModel):
     phone_number: str = Field(max_length=11, description='仅支持中国大陆地区手机号')
     password: str = Field(min_length=8, max_length=30)
+
+
+class AddressCreate(SQLModel):
+    address: str

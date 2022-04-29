@@ -13,6 +13,7 @@ async def code2session(code: str) -> Code2SessionRsp:
     :param code: 登录时获取的 code
     :return: app.wx_api.api_models.Code2SessionRsp
     """
+    return Code2SessionRsp(**{'openid': 'asdfd', 'session_key': 'fdsfdsf'})
     c2sreq = Code2SessionReq(appid=MINIPROGRAM_APPID, secret=MINIPROGRAM_SECRET, js_code=code)
     async with AsyncClient() as client:
         rsp: Response = await client.get(url=CODE2SESSION_URL, params=c2sreq.dict())

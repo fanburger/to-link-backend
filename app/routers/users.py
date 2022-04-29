@@ -4,11 +4,12 @@ from sqlmodel import Session
 
 from app.enum_base.enums import UserPurview
 from app.public_models import Token, TokenPayload
-from app.routers.user_model import UserSignUpReq, LoginByOpenidReq, UserBase
+from app.routers.user_model import UserSignUpReq, LoginByOpenidReq, UserBase, AddressCreate
 from app.sql.crud import (is_existed_phone, add_user, add_openid_session, get_user_by_phone_number,
-                          get_user_by_openid, update_session_key)
+                          get_user_by_openid, update_session_key, add_new_address, select_address_by_phonenum,
+                          delete_address_by_id_phonenum, update_address_by_id_phonenum)
 from app.sql.database import gen_session
-from app.sql.models import UserInDB, OpenidSessionkey
+from app.sql.models import UserInDB, OpenidSessionkey, AddressInDB
 from app.wx_api.user_api import code2session
 from app.dependencies import hash_password, create_access_token, verify_password, get_payload_oauth2
 
@@ -95,3 +96,41 @@ async def get_current_user(db: Session = Depends(gen_session), payload: TokenPay
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
 
     return user
+
+
+@router.post('/address', response_model=AddressInDB, summary='为用户创建地址')
+async def create_address(address: AddressCreate, db: Session = Depends(gen_session),
+                         payload: TokenPayload = Depends(get_payload_oauth2)
+                         ):
+    if not (user := get_user_by_phone_number(db, payload.phone_number)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
+
+    user_address = AddressInDB(**payload.dict(), user_address=address.address)
+    add_new_address(db, user_address)
+
+    return user_address
+
+
+@router.get('/selects', summary='通过手机号查询及相关信息')
+async def select_address(db: Session = Depends(gen_session),
+                         payload: TokenPayload = Depends(get_payload_oauth2)
+                         ):
+    if not (info := select_address_by_phonenum(db, payload.phone_number)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
+    return info
+
+
+@router.post('/delete', summary='通过aid和手机号删除地址')
+async def delete_address(aid: int, db: Session = Depends(gen_session),
+                         payload: TokenPayload = Depends(get_payload_oauth2)):
+    if not (info := select_address_by_phonenum(db, payload.phone_number)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
+    delete_address_by_id_phonenum(db, aid, info.phone_number)
+
+
+@router.post('/update', summary='通过aid和手机号更新地址')
+async def update_address(aid: int, new_address: str, db: Session = Depends(gen_session),
+                         payload: TokenPayload = Depends(get_payload_oauth2)):
+    if not (info := select_address_by_phonenum(db, payload.phone_number)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
+    update_address_by_id_phonenum(db, aid, info.phone_number, new_address)

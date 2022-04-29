@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 
-from app.sql.models import UserInDB, OpenidSessionkey
+from app.sql.models import UserInDB, OpenidSessionkey, AddressInDB
 
 
 def is_existed_phone(db: Session, phone_number: str) -> bool:
@@ -75,3 +75,57 @@ def update_session_key(db: Session, info: OpenidSessionkey) -> None:
 
     openid_sessionkey.session_key = info.session_key
     db.add(openid_sessionkey)
+
+
+def add_new_address(db: Session, new_address: AddressInDB):
+    """"
+    """
+
+    db.add(new_address)
+    db.commit()
+
+
+def select_address_by_phonenum(db: Session, phone_num: str):
+    """通过电话查地址
+
+    :param db:
+    :param phone_num:
+    :return:
+    """
+    statement = select(AddressInDB).where(AddressInDB.phone_number == phone_num)
+    address = db.exec(statement).first()
+    return address
+
+
+def delete_address_by_id_phonenum(db: Session, aid: int, phone_num: str):
+    """考虑到一对多的情况，同时使用id和手机号码来进行删除
+
+    :param db:
+    :param aid:
+    :param phone_num:
+    :return:
+    """
+    statement = select(AddressInDB).where(AddressInDB.phone_number == phone_num).where(AddressInDB.id == aid)
+    results = db.exec(statement)
+    abandoned_address = results.one()
+    db.delete(abandoned_address)
+    db.commit()
+    print('删除成功')
+
+
+def update_address_by_id_phonenum(db: Session, aid: int, phone_num: str, new_address: str):
+    """
+    
+    :param db: 
+    :param aid: 
+    :param phone_num: 
+    :return: 
+    """
+    statement = select(AddressInDB).where(AddressInDB.phone_number == phone_num).where(AddressInDB.id == aid)
+    results = db.exec(statement)
+    update_instances = results.one()
+    update_instances.user_address = new_address
+    db.add(update_instances)
+    db.commit()
+    db.refresh(update_instances)
+    print("修改成功！")
