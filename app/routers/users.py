@@ -3,14 +3,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
 from app.enum_base.enums import UserPurview
-from app.public_models import Token
-from app.routers.user_model import UserSignUpReq, LoginByOpenidReq
+from app.public_models import Token, TokenPayload
+from app.routers.user_model import UserSignUpReq, LoginByOpenidReq, UserBase
 from app.sql.crud import (is_existed_phone, add_user, add_openid_session, get_user_by_phone_number,
                           get_user_by_openid, update_session_key)
 from app.sql.database import gen_session
 from app.sql.models import UserInDB, OpenidSessionkey
 from app.wx_api.user_api import code2session
-from app.dependencies import hash_password, create_access_token, verify_password
+from app.dependencies import hash_password, create_access_token, verify_password, get_payload_oauth2
 
 router = APIRouter(prefix='/user', tags=['user'])
 
@@ -87,3 +87,11 @@ async def login_by_openid(code: LoginByOpenidReq, db: Session = Depends(gen_sess
         db.commit()
 
     return token
+
+
+@router.get('/me', response_model=UserBase, summary='获取当前用户')
+async def get_current_user(db: Session = Depends(gen_session), payload: TokenPayload = Depends(get_payload_oauth2)):
+    if not (user := get_user_by_phone_number(db, payload.phone_number)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='用户不存在')
+
+    return user

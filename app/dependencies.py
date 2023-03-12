@@ -2,11 +2,14 @@ from datetime import timedelta, datetime
 
 from passlib.context import CryptContext
 from jose import jwt
+from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends
 
 from app.public_models import TokenPayload, Token
 from app.config import JWT_SECRET_KEY, ACCESS_TOKEN_EXPIRE_DAYS, ALGORITHM
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
+oauth2 = OAuth2PasswordBearer(tokenUrl='/user/phone_login')
 
 
 def hash_password(password: str) -> str:
@@ -44,3 +47,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     :return: True or False
     """
     return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_payload_oauth2(token: str = Depends(oauth2)) -> TokenPayload:
+    """验证 token 并返回 token 携带的信息
+
+    :param token: oauth2
+    :return: app.public_models.TokenPayload()
+    """
+    payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
+    return TokenPayload(**payload)
